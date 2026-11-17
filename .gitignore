@@ -1,0 +1,10 @@
+# Local settings (copy from .env.example)
+.env
+
+# colcon build output
+ros_workspace/build/
+ros_workspace/install/
+ros_workspace/log/
+
+__pycache__/
+_to_delete/

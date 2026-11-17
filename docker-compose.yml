@@ -1,0 +1,46 @@
+# UR3e lab robots (real or simulated) from Windows (WSL + Docker Desktop). Settings in .env.
+# Single container: driver + MoveIt + RViz (as a Windows window through WSLg). Commands: see README.md.
+
+name: javc-ur3e-standalone
+
+services:
+  ros:
+    build: .
+    image: javc-ur3e-lab-control
+    shm_size: 2gb
+    ports:
+      - 50030-50062:50030-50062   # reverse, script sender and trajectory ports of robots 203-206
+    volumes:
+      - ./ros_workspace:/ws
+      - ./scripts:/scripts
+      # WSLg display, so RViz opens as a Windows window
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - /mnt/wslg:/mnt/wslg
+      # WSL GPU drivers, so RViz renders on the GPU (Mesa d3d12) instead of the CPU (llvmpipe)
+      - /usr/lib/wsl:/usr/lib/wsl
+    devices:
+      - /dev/dxg   # WSL GPU device (remove this and the line above if the container fails to start)
+    environment:
+      - DISPLAY=${DISPLAY:-:0}
+      - WAYLAND_DISPLAY=${WAYLAND_DISPLAY:-wayland-0}
+      - XDG_RUNTIME_DIR=/mnt/wslg/runtime-dir
+      - LD_LIBRARY_PATH=/usr/lib/wsl/lib
+      - GALLIUM_DRIVER=d3d12
+    working_dir: /scripts
+    stop_signal: SIGINT   # ROS nodes shut down cleanly on SIGINT
+    # MODE=sim uses mock hardware (no robot needed); MODE=robot connects to the real one.
+    # Required in .env: ROBOT_ID, and HOST_IP when MODE=robot. Defaults: MODE=sim, RVIZ=true.
+    # reverse_ip: inside Docker the driver would advertise the container IP (172.17.x.x), unreachable for the robot.
+    # script_command_port: the driver default (50004) is outside the published range.
+    # The first run builds the lab packages in ./ros_workspace.
+    command:
+      - bash
+      - -c
+      - >-
+        case "${MODE:-sim}" in sim|robot) ;; *) echo "ERROR: MODE must be sim or robot (.env)"; exit 1 ;; esac &&
+        { [ "${MODE:-sim}" = sim ] || [ -n "${HOST_IP:-}" ] || { echo "ERROR: MODE=robot needs HOST_IP in .env"; exit 1; }; } &&
+        cd /ws &&
+        { [ -f install/setup.bash ] || colcon build --symlink-install; } &&
+        source install/setup.bash &&
+        exec ros2 launch launcher_robots_lab_robotica ${MODE:-sim}_${ROBOT_ID:?Missing ROBOT_ID in .env (203-206)}.launch.py
+        reverse_ip:=${HOST_IP:-0.0.0.0} script_command_port:=50059 launch_rviz:=${RVIZ:-true}
