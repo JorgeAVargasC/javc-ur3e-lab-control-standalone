@@ -101,24 +101,36 @@ No necesita la red del laboratorio. El robot no se mueve.
 
 ### Preparación del teach pendant (una sola vez por robot)
 
-1. **Encender**: botón rojo abajo a la izquierda → **ON** → **START**, hasta tener los 5 ✓ → **Exit**
+El teach pendant puede estar en español o en inglés; los nombres en inglés van entre paréntesis.
 
-   <img src="images/teach-pendant-1-initialize.jpg" alt="Pantalla de inicialización con los 5 checks" width="500">
+1. **Encender**: botón de estado abajo a la izquierda → **ENCENDER** (*ON*)
 
-2. **Modo de control**: arriba a la derecha, **Local**. Si no ves las pestañas *Program* e *Installation*, cambia también de *Automatic* a **Manual** (puede pedir contraseña)
+   <img src="images/teach-pendant-1-power-on.jpg" alt="Pantalla Inicializar con el botón ENCENDER" width="500">
 
-   <img src="images/teach-pendant-2-local-control.jpg" alt="Menú de modo de control con Local Control" width="500">
+2. **Iniciar**: cuando *Robot activo* esté en amarillo → **INICIAR** (*START*), hasta tener los 5 ✓ → **Salir** (*Exit*)
 
-3. **External Control**: *Installation → URCaps → External Control*
+   <img src="images/teach-pendant-2-start.jpg" alt="Pantalla Inicializar con el botón INICIAR" width="500">
+
+3. **Modo de control**: arriba a la derecha, **Local**. Si no ves las pestañas *Programa* e *Instalación*, cambia también de *Automático* a **Manual** (puede pedir contraseña)
+
+   <img src="images/teach-pendant-3-local-control.jpg" alt="Menú de modo de control con Local Control" width="500">
+
+4. **External Control**: *Instalación → URCaps → External Control*
    - Host IP: tu `HOST_IP`
    - Custom port: `500X1` (203 → `50031` · 204 → `50041` · 205 → `50051` · 206 → `50061`)
-   - Guarda: icono de disquete → *Save Installation*
-4. **Programa**:
-   - *Program → New → Empty Program*
-   - Toca `<empty>` → *URCaps* → **External Control** (debe quedar **un solo** nodo)
-   - Guarda: icono de disquete → *Save Program As* (por ejemplo `external_control`)
+   - Guarda la instalación: icono de disquete → *Guardar instalación*
 
-   <img src="images/teach-pendant-3-program-external-control.jpg" alt="Pestaña Program con URCaps → External Control" width="500">
+   <img src="images/teach-pendant-4-installation-external-control.jpg" alt="Instalación → URCaps → External Control con Host IP y Custom port" width="500">
+
+5. **Programa**:
+   - *Programa → Nuevo → Programa vacío*
+   - Toca `<vacío>` → *URCaps* → **External Control** (debe quedar **un solo** nodo `Control by <HOST_IP>`)
+
+   <img src="images/teach-pendant-5-program-external-control.jpg" alt="Pestaña Programa con el nodo Control by HOST_IP" width="500">
+
+6. **Guarda el programa**: icono de disquete → *Guardar programa como…* (por ejemplo `external_control`)
+
+   <img src="images/teach-pendant-6-save-program.jpg" alt="Diálogo Guardar programa" width="500">
 
 
 ### Cada sesión
@@ -138,9 +150,9 @@ No necesita la red del laboratorio. El robot no se mueve.
    ```
 
 3. **Teach pendant**:
-   - Enciende el robot (ON → START) y pon el modo **Local**
-   - Baja el deslizador **Speed** al 10–20 %
-   - Carga el programa: *Open → Program → external_control*
+   - Enciende el robot (ENCENDER → INICIAR) y pon el modo **Local**
+   - Baja el deslizador **Velocidad** (*Speed*) al 10–20 %
+   - Carga el programa: *Abrir → Programa → external_control*
    - Si tu IP cambió, actualízala en *External Control*
 
 4. **WSL (terminal 1)**: levanta todo y espera `You can start planning now!`
@@ -149,10 +161,9 @@ No necesita la red del laboratorio. El robot no se mueve.
    ./start.sh
    ```
 
-5. **Teach pendant**: ▶ → *Play from beginning*. En la terminal 1 debe salir `Robot connected to reverse interface`
+5. **Teach pendant**: ▶ → **Reproducir desde el principio** (*Play from beginning*). En la terminal 1 debe salir `Robot connected to reverse interface`
 
-   <img src="images/teach-pendant-4-play.jpg" alt="Menú de Play con Play from beginning" width="500">
-
+   <img src="images/teach-pendant-7-play.jpg" alt="Menú de Play con Reproducir desde el principio" width="500">
 
 6. **WSL (terminal 2)**: con el área despejada y alguien en la seta de emergencia
 
