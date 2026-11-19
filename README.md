@@ -47,8 +47,10 @@ ipconfig.exe | grep -a 10.172.21
 
 - Van en `scripts/`
 - Incluidos:
-  - `hello_robot.py`: gira la base 15° y vuelve
   - `go_home.py`: lleva el robot a la posición home
+  - `stand_up.py`: pone el brazo vertical (stand up)
+  - `gripper_open_close.py`: abre, cierra y vuelve a abrir la pinza
+  - `pick_domino.py`: desde stand up, baja desde home, agarra una ficha de dominó acostada (por el ancho) y vuelve a stand up con ella
 - Para correr uno (con `./start.sh` ya levantado):
 
   ```bash
@@ -83,10 +85,10 @@ No necesita la red del laboratorio. El robot no se mueve.
 
 3. **RViz** se abre solo como ventana de Windows
 
-4. **WSL (terminal 2)**: la base gira 15° y vuelve en RViz
+4. **WSL (terminal 2)**: el brazo va a home en RViz
 
    ```bash
-   ./run.sh hello_robot.py
+   ./run.sh go_home.py
    ```
 
 5. **Fin**:
@@ -169,7 +171,6 @@ El teach pendant puede estar en español o en inglés; los nombres en inglés va
 
    ```bash
    ./run.sh go_home.py
-   ./run.sh hello_robot.py
    ```
 
 7. **Fin**: ⏹ en el teach pendant y luego:

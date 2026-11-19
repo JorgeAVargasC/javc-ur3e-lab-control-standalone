@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Open and close the OnRobot RG2 gripper through the rg2_driver action server.
+"""Open, close and re-open the OnRobot RG2 gripper through the rg2_driver action server.
 
 Run with: ./run.sh gripper_open_close.py
 """
@@ -56,19 +56,19 @@ class Gripper(Node):
 
 
 def main() -> None:
-    """Open the gripper, then close it."""
+    """Open the gripper, close it, then open it again."""
     rclpy.init()
     gripper = Gripper()
     logger = gripper.get_logger()
 
-    logger.info("Opening gripper...")
-    if gripper.move(OPEN_WIDTH_MM):
+    for label, width in (("Opening", OPEN_WIDTH_MM), ("Closing", CLOSED_WIDTH_MM), ("Opening", OPEN_WIDTH_MM)):
+        logger.info(f"{label} gripper...")
+        if not gripper.move(width):
+            logger.error(f"{label} failed")
+            break
         time.sleep(PAUSE_S)
-        logger.info("Closing gripper...")
-        gripper.move(CLOSED_WIDTH_MM)
-        logger.info("Done.")
     else:
-        logger.error("Open failed")
+        logger.info("Done.")
 
     gripper.destroy_node()
     rclpy.try_shutdown()

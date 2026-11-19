@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Run a Python script from ./scripts inside the running container: ./run.sh hello_robot.py [args]
+# Run a Python script from ./scripts inside the running container: ./run.sh go_home.py [args]
 set -euo pipefail
 cd "$(dirname "$0")"
 

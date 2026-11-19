@@ -37,8 +37,9 @@ POLL_PERIOD_S = 0.01
 class RobotController(Node):
     """Move the UR3e arm with MoveIt. Blocks until MoveIt and the joint states are available."""
 
-    def __init__(self) -> None:
+    def __init__(self, floor_top_z_m: float = FLOOR_TOP_Z_M) -> None:
         super().__init__("robot_controller")
+        self._floor_top_z_m = floor_top_z_m
         self._joint_positions: dict[str, float] = {}
         self.create_subscription(JointState, "/joint_states", self._on_joint_states, 10)
         self._move_client = ActionClient(self, MoveGroup, "move_action")
@@ -90,7 +91,7 @@ class RobotController(Node):
     def _add_floor(self) -> None:
         """Add a box under the robot to the planning scene as the table/floor."""
         floor_pose = Pose()
-        floor_pose.position.z = FLOOR_TOP_Z_M - FLOOR_SIZE_M[2] / 2
+        floor_pose.position.z = self._floor_top_z_m - FLOOR_SIZE_M[2] / 2
         floor_pose.orientation.w = 1.0
 
         floor = CollisionObject(id="floor", operation=CollisionObject.ADD)
