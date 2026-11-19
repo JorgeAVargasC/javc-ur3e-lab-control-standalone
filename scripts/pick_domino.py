@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Pick a domino tile: stand up -> home -> open -> lower -> close -> home -> stand up (still holding the tile).
+"""Pick a domino tile: stand up -> home -> turn gripper -> open -> lower -> close -> raise -> stand up (holding the tile).
 
 Run with: ./run.sh pick_domino.py
 """
@@ -20,14 +20,18 @@ FORCE_N = 3.0  # RG2 minimum force, so the tile is not squeezed
 # The real table is below the robot base, so MoveIt's default floor (at the base) blocks the lowered pose.
 FLOOR_TOP_Z_M = -0.10  # collision floor for this script (m, relative to the base). Raise it if you know the real table height.
 DROP_M = 0.08  # how far the tool goes down from home (vertical, tool keeps pointing down). Increase in small steps.
+GRIPPER_TURN_RAD = pi / 2  # wrist_3 turn so the fingers match the tile orientation (0 = original orientation)
 
 # UR3e link lengths (m): shoulder -> elbow, elbow -> wrist_1
 UPPER_ARM_M = 0.24355
 FOREARM_M = 0.2132
 
 
-def lowered_joints(drop_m: float) -> list[float]:
-    """Home pose moved straight down by drop_m, keeping the tool vertical (planar 2-link IK)."""
+def lowered_joints(drop_m: float, turn_rad: float = 0.0) -> list[float]:
+    """Home pose moved straight down by drop_m, keeping the tool vertical (planar 2-link IK).
+
+    turn_rad rotates the gripper about its own (vertical) axis, so the fingertips stay in place.
+    """
     x = FOREARM_M  # horizontal reach of wrist_1 at home
     z = UPPER_ARM_M - drop_m  # height of wrist_1 above the shoulder
     d = (x * x + z * z - UPPER_ARM_M**2 - FOREARM_M**2) / (2 * UPPER_ARM_M * FOREARM_M)
@@ -35,7 +39,7 @@ def lowered_joints(drop_m: float) -> list[float]:
     alpha = atan2(z, x) - atan2(FOREARM_M * sin(elbow), UPPER_ARM_M + FOREARM_M * cos(elbow))
     shoulder_lift = alpha - pi
     wrist_1 = -3 * pi / 2 - shoulder_lift - elbow  # keeps the tool pointing down
-    return [HOME_JOINTS[0], shoulder_lift, elbow, wrist_1, HOME_JOINTS[4], HOME_JOINTS[5]]
+    return [HOME_JOINTS[0], shoulder_lift, elbow, wrist_1, HOME_JOINTS[4], HOME_JOINTS[5] + turn_rad]
 
 
 def main() -> None:
@@ -44,15 +48,17 @@ def main() -> None:
     robot = RobotController(floor_top_z_m=FLOOR_TOP_Z_M)
     gripper = Gripper()
     logger = robot.get_logger()
-    down = lowered_joints(DROP_M)
+    above = lowered_joints(0.0, GRIPPER_TURN_RAD)  # home with the gripper turned
+    down = lowered_joints(DROP_M, GRIPPER_TURN_RAD)
 
     steps = [
         ("Standing up", lambda: robot.move_joints(UPRIGHT_JOINTS)),
         ("Moving to home", lambda: robot.move_joints(HOME_JOINTS)),
+        ("Turning gripper", lambda: robot.move_joints(above)),
         ("Opening gripper", lambda: gripper.move(OPEN_WIDTH_MM, FORCE_N)),
         (f"Lowering {DROP_M * 100:.0f} cm", lambda: robot.move_joints(down)),
         ("Closing gripper", lambda: gripper.move(CLOSED_WIDTH_MM, FORCE_N)),
-        ("Raising to home", lambda: robot.move_joints(HOME_JOINTS)),
+        ("Raising", lambda: robot.move_joints(above)),
         ("Standing up with the tile", lambda: robot.move_joints(UPRIGHT_JOINTS)),
     ]
 
